@@ -1,12 +1,9 @@
-const firebase = require("firebase");
-const firebaseConfig = require("../util/config");
 const { admin, db } = require("../util/admin");
+const { firebase } = require("../util/firebase")
 const { validateSignupData, validateLoginData } = require("../util/validators");
 
 const EMAILEXISTS = "auth/email-already-in-use";
 
-// initialize firebase app
-firebase.initializeApp(firebaseConfig);
 
 // sign up handler
 let token, userID;
@@ -23,9 +20,10 @@ exports.createUser = (req, res) => {
     confirmPassword: req.body.confirmPassword,
   };
 
+    var dbName = "users"
   // check if username already exists
   // create user if doesnt exist, otherwise return error
-  db.doc(`/users/${newUser.userName}`)
+    db.doc(`/${dbName}/${newUser.userName}`)
     .get()
     .then((doc) => {
       if (doc.exists) {
@@ -50,7 +48,7 @@ exports.createUser = (req, res) => {
         userID: userID,
         userName: newUser.userName,
       };
-      return db.doc(`/users/${newUser.userName}`).set(userCredentials);
+      return db.doc(`/${dbName}/${newUser.userName}`).set(userCredentials);
     })
     .then(() => {
       return res.status(201).json({ token });
